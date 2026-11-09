@@ -1,6 +1,15 @@
 <div dir="rtl">
 
 # 📘 الدليل المرجعي الشامل لمعمارية وتاريخ وإصدارات SAP S/4HANA
+
+<div dir="ltr" align="center">
+  <img src="https://img.shields.io/badge/SAP-S%2F4HANA-008FD3?style=for-the-badge&logo=sap&logoColor=white" alt="SAP S/4HANA" />
+  <img src="https://img.shields.io/badge/Module-FICO-F0AB00?style=for-the-badge" alt="FICO" />
+  <img src="https://img.shields.io/badge/Target-Consultants-28a745?style=for-the-badge" alt="Consultants" />
+</div>
+
+<br>
+
 **مرجع هندسي واستشاري لمستشاري ساب — Functional & Technical Consultants**
 
 ---
@@ -43,6 +52,21 @@
 
 تأسست شركة ساب في ألمانيا عام **1972** على يد خمسة مهندسين سابقين في شركة IBM، وتطورت أنظمتها عبر المحطات المعمارية التالية:
 
+<div dir="ltr">
+
+```mermaid
+timeline
+    title SAP Architecture Evolution (1972 - Present)
+    1972 : SAP R/1 : 1-Tier Architecture
+    1979 : SAP R/2 : 2-Tier Architecture
+    1992 : SAP R/3 : 3-Tier Architecture
+    2004 : SAP ERP ECC : 3-Tier + NetWeaver
+    2013 : Suite on HANA : ECC on HANA DB
+    2015 : SAP S/4HANA : In-Memory Native ERP
+```
+
+</div>
+
 | الجيل والإصدار | سنة الإطلاق | المعمارية التقنية | الخصائص الجوهرية للنظام |
 | :--- | :--- | :--- | :--- |
 | **SAP R/1** | `1972` | **`1-Tier Architecture`**<br>خادم مركزي `Mainframe` | يرمز حرف `R` إلى المعالجة الفورية `Real-Time`. كانت شاشة العرض ومنطق التطبيق وقاعدة البيانات تعمل جميعها في طبقة واحدة. |
@@ -77,18 +101,37 @@
 
 في نظام **S/4HANA**، وبفضل سرعة الذاكرة العشوائية والتخزين العمودي، يتم جمع ملايين السجلات لحظياً أثناء طلب التقرير `On-the-fly Aggregation`، مما سمح بحذف الجداول الوسيطة والاعتماد على جدول مركزي واحد كمصدر وحيد للحقيقة `Single Source of Truth`.
 
-<div dir="ltr" align="left">
+<div dir="ltr">
 
-```text
-[SAP ECC Legacy Data Model]                       [SAP S/4HANA Simplified Data Model]
-+-------------------------+                       +---------------------------------+
-| FI: BKPF, BSEG          |                       |            BKPF                 |
-| GL: FAGLFLEXA, GLT0     |                       |      (Document Header)          |
-| AR/AP: BSID/AD, BSIK/AK |  ==================>  +---------------------------------+
-| CO: COBK, COEP, COSP    |   Simplification      |           ACDOCA                |
-| AA: ANEK, ANEP, ANEA    |                       | (Universal Journal Line Items)  |
-| ML: MLIT, MLCR          |                       |  Combines: FI + CO + AA + COPA  |
-+-------------------------+                       +---------------------------------+
+```mermaid
+flowchart LR
+    subgraph ECC["SAP ECC Legacy Data Model"]
+        direction TB
+        FI["FI: BKPF, BSEG"]
+        GL["GL: FAGLFLEXA, GLT0"]
+        AR["AR/AP: BSID/AD, BSIK/AK"]
+        CO["CO: COBK, COEP, COSP"]
+        AA["AA: ANEK, ANEP, ANEA"]
+        ML["ML: MLIT, MLCR"]
+    end
+
+    subgraph S4["SAP S/4HANA Simplified Data Model"]
+        direction TB
+        BKPF["BKPF (Document Header)"]
+        ACDOCA["ACDOCA (Universal Journal Line Items)<br>Combines: FI + CO + AA + COPA"]
+        BKPF --- ACDOCA
+    end
+
+    FI -->|Simplification| ACDOCA
+    GL -->|Simplification| ACDOCA
+    AR -->|Simplification| ACDOCA
+    CO -->|Simplification| ACDOCA
+    AA -->|Simplification| ACDOCA
+    ML -->|Simplification| ACDOCA
+
+    style ACDOCA fill:#d4edda,stroke:#28a745,stroke-width:2px
+    style ECC fill:#f8d7da,stroke:#dc3545,stroke-width:1px,stroke-dasharray: 5 5
+    style S4 fill:#e2e3e5,stroke:#383d41,stroke-width:1px
 ```
 
 </div>
@@ -148,21 +191,24 @@
 
 عند الانتقال إلى S/4HANA، تختار الشركات واحداً من ثلاثة مسارات هندسية معتمدة:
 
-<div dir="ltr" align="left">
+<div dir="ltr">
 
-```text
-+-----------------------------------------------------------------------------------+
-|                        SAP S/4HANA Transition Scenarios                           |
-+-----------------------------------+-----------------------+-----------------------+
-|         1. New Implementation     |  2. System Conversion | 3. Selective Data     |
-|              (Greenfield)         |      (Brownfield)     |    Transition         |
-+-----------------------------------+-----------------------+-----------------------+
-| • Re-engineering from scratch     | • In-place technical  | • Hybrid approach     |
-| • Clean Core & Best Practices     |   upgrade (SUM/DMO)   |   (Bluefield)         |
-| • Migrate only Master Data &      | • Keeps historical    | • Consolidate/Split   |
-|   Open Balances (via Migration    |   data & custom code  |   systems & cherry-   |
-|   Cockpit)                        | • Minimal disruption  |   pick historical data|
-+-----------------------------------+-----------------------+-----------------------+
+```mermaid
+graph TD
+    A[SAP S/4HANA Transition Scenarios] --> B("1. New Implementation<br>(Greenfield)")
+    A --> C("2. System Conversion<br>(Brownfield)")
+    A --> D("3. Selective Data Transition<br>(Bluefield)")
+
+    B --> B1["• Re-engineering from scratch<br>• Clean Core & Best Practices<br>• Migrate Master Data & Open Balances"]
+
+    C --> C1["• In-place technical upgrade<br>• Keeps historical data & custom code<br>• Minimal disruption"]
+
+    D --> D1["• Hybrid approach<br>• Consolidate/Split systems<br>• Cherry-pick historical data"]
+
+    style A fill:#008fd3,color:#fff,stroke:#005e8a,stroke-width:2px
+    style B fill:#d4edda,stroke:#28a745,stroke-width:2px
+    style C fill:#f8d7da,stroke:#dc3545,stroke-width:2px
+    style D fill:#cce5ff,stroke:#007bff,stroke-width:2px
 ```
 
 </div>
@@ -190,6 +236,39 @@
 في أنظمة `ECC` القديمة، كان يتم تلبية طلبات العملاء عبر تعديل الكود الأصلي لساب أو بناء مئات البرامج والجداول المخصصة `Z-Programs` المتشابكة مع جداول النظام الداخلية. النتيجة كانت صعوبة بالغة وتكلفة باهظة عند محاولة ترقية النظام لأي إصدار أحدث.
 
 ### الطبقات الثلاث للتوسع النظيف في S/4HANA — `3-Tier Extensibility`
+
+<div dir="ltr">
+
+```mermaid
+graph BT
+    subgraph L3["Tier 3: Side-by-Side Extensibility"]
+        BTP["SAP BTP (Business Technology Platform)"]
+    end
+
+    subgraph L2["Tier 2: Developer Extensibility"]
+        ABAP["ABAP Cloud (Embedded Steampunk)"]
+    end
+
+    subgraph L1["Tier 1: Key User Extensibility"]
+        Fiori["In-App Customization (SAP Fiori)"]
+    end
+
+    subgraph Core["SAP S/4HANA Clean Core"]
+        Standard["Standard SAP Code & Released APIs"]
+    end
+
+    Standard -.-> Fiori
+    Standard -.-> ABAP
+    Standard -.-> BTP
+
+    style Core fill:#e2f0d9,stroke:#548235,stroke-width:2px
+    style Standard fill:#c6e0b4,stroke:#385723,stroke-width:2px
+    style L1 fill:#fff2cc,stroke:#d6b656,stroke-width:2px
+    style L2 fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px
+    style L3 fill:#e1d5e7,stroke:#9673a6,stroke-width:2px
+```
+
+</div>
 
 | طبقة التوسع | المسمى التقني | طبيعة الاستخدام ومن يقوم به |
 | :--- | :--- | :--- |
